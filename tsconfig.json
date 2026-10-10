@@ -1,0 +1,24 @@
+{
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "module": "esnext",
+    "types": [],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "scripts/**",
+    "node_modules",
+    "vendor",
+    "packages",
+    "android",
+    "ios",
+    "**/*.test.ts"
+  ]
+}

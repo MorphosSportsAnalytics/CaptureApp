@@ -1,0 +1,72 @@
+{
+  "name": "morphos-capture-app",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm --prefix packages/mobile-preprocess install && npm --prefix packages/mobile-preprocess run build && npm --prefix packages/mobile-i18n install && npm --prefix packages/mobile-i18n run build && npm --prefix packages/portal-api-client install && npm --prefix packages/portal-api-client run build",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "tsc --noEmit",
+    "test:bundle": "mkdir -p /tmp/morphos-capture-assets && react-native bundle --platform android --dev false --entry-file index.js --bundle-output /tmp/morphos-capture.android.bundle --assets-dest /tmp/morphos-capture-assets",
+    "test": "npm run test:bundle && npm --prefix packages/portal-api-client run test && npm --prefix packages/mobile-preprocess run test && npm --prefix packages/mobile-i18n run test && node --import tsx --test src/*.test.ts src/**/*.test.ts",
+    "verify:phone-config": "node --import tsx scripts/verify-phone-build-config.ts",
+    "smoke:portal-api": "node --import tsx scripts/smoke-portal-api.ts",
+    "write-build-config": "node scripts/write-build-config.cjs",
+    "ensure-android-sdk": "node scripts/android-sdk.cjs ensure",
+    "android:assemble:release": "node scripts/android-sdk.cjs with-jdk -- ./android/gradlew -p android :app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease",
+    "generate:app-icons": "python3 scripts/generate-app-icons.py"
+  },
+  "dependencies": {
+    "@invertase/react-native-apple-authentication": "^2.4.1",
+    "@morphos/mobile-i18n": "file:./packages/mobile-i18n",
+    "@morphos/mobile-preprocess": "file:./packages/mobile-preprocess",
+    "@morphos/portal-api-client": "file:./packages/portal-api-client",
+    "@react-native-community/geolocation": "^3.4.0",
+    "@react-native-google-signin/google-signin": "^16.1.4",
+    "@react-native-picker/picker": "2.9.0",
+    "@react-navigation/bottom-tabs": "^7.2.0",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native-stack": "^7.2.0",
+    "js-sha256": "^0.11.1",
+    "morphos-video-transcode": "file:./modules/morphos-video-transcode",
+    "qrcode": "^1.5.4",
+    "react": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-blob-util": "^0.21.3",
+    "react-native-bootsplash": "^6.3.11",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-image-picker": "^7.2.3",
+    "react-native-inappbrowser-reborn": "^3.7.0",
+    "react-native-keychain": "^9.2.3",
+    "react-native-permissions": "^5.4.2",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-vector-icons": "^10.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@react-native-community/cli": "15.0.1",
+    "@react-native-community/cli-platform-android": "15.0.1",
+    "@react-native-community/cli-platform-ios": "15.0.1",
+    "@react-native/babel-preset": "0.76.9",
+    "@react-native/metro-config": "0.76.9",
+    "@react-native/typescript-config": "0.76.9",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "~18.3.12",
+    "@types/react-native-vector-icons": "^6.4.18",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "overrides": {
+    "@babel/plugin-proposal-optional-chaining": "npm:@babel/plugin-transform-optional-chaining@7.27.1",
+    "@xmldom/xmldom": "0.8.15",
+    "glob": "13.0.6",
+    "rimraf": "6.1.3",
+    "tar": "7.5.22"
+  }
+}

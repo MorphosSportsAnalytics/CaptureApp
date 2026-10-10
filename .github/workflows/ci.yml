@@ -1,0 +1,78 @@
+name: Capture CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      MORPHOS_ANDROID_CI_LIMITS: "1"
+      ORG_GRADLE_PROJECT_reactNativeArchitectures: arm64-v8a
+      CMAKE_BUILD_PARALLEL_LEVEL: "2"
+      NINJAFLAGS: "-j2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: Install, lint, and test
+        run: |
+          npm ci
+          npm run lint
+          npm run test
+      - name: Gradle assembleRelease
+        env:
+          PORTAL_API_URL: ${{ secrets.PORTAL_API_URL }}
+          PORTAL_WEB_URL: ${{ secrets.PORTAL_WEB_URL }}
+          MSAL_CLIENT_ID: ${{ secrets.MSAL_CLIENT_ID }}
+          MSAL_PORTAL_API_SCOPE: ${{ secrets.MSAL_PORTAL_API_SCOPE }}
+          GOOGLE_IOS_CLIENT_ID: ${{ secrets.GOOGLE_IOS_CLIENT_ID }}
+        run: |
+          npm run write-build-config
+          npm run verify:phone-config
+          npm run ensure-android-sdk
+          eval "$(node scripts/android-sdk.cjs print-env)"
+          npm run android:assemble:release
+
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install JS deps
+        run: npm ci
+      - name: CocoaPods
+        working-directory: ios
+        run: pod install
+      - name: Unsigned xcodebuild
+        run: |
+          xcodebuild \
+            -workspace ios/MorphosCapture.xcworkspace \
+            -scheme MorphosCapture \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            build

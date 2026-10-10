@@ -1,0 +1,44 @@
+node_modules/
+.expo/
+dist/
+vendor/
+.env.local
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+out/
+bin/
+*.apk
+credentials.json
+credentials/
+android/local.properties
+
+# Xcode
+build/
+xcuserdata
+*.xcuserstate
+**/.xcode.env.local
+DerivedData
+*.hmap
+*.ipa
+
+# Android/IntelliJ
+.idea
+.gradle
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+
+# Ruby / CocoaPods
+**/Pods/
+/vendor/bundle/
+
+# Metro
+.metro-health-check*
+*.jsbundle

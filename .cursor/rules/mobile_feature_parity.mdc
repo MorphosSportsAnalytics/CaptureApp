@@ -1,0 +1,65 @@
+---
+description: HARD GATE — Morphos Capture iOS and Android must ship identical features and look/feel
+globs: src/**,android/**,ios/**,packages/mobile-*/**,packages/portal-api-client/**
+alwaysApply: false
+---
+
+# Mobile iOS / Android parity (HARD GATE)
+
+Morphos Capture is **one React Native CLI app**. Apple and Android are **the same product**. A change that exists, behaves, or looks different on one OS is a **task failure**.
+
+This rule overrides convenience, “ship Android first,” “iOS later,” platform-idiomatic redesigns, and “CI only builds one store binary.”
+
+## Absolute prohibition
+
+You MUST NOT do any of the following:
+
+- Add, enable, or document a capability on only one of iOS or Android
+- Claim Done / complete / ready, mark todos complete, or treat a PR as merge-ready while either OS is missing the feature, flow, copy, or visual treatment
+- Fork screens, routes, tabs, navigation, or components (`Foo.ios.tsx` / `Foo.android.tsx`, parallel trees, or `Platform.OS` that returns different UX)
+- Hide a tab, button, picker, permission, deep link, or API call behind `Platform.OS` / `Platform.select` except **OS-mandated system APIs** listed below
+- Restyle one OS (Material vs Cupertino, different colors, type, spacing, icons, or layout) while calling it “native look and feel”
+- Leave i18n, subscription gating, upload/QC, or auth working on one OS only
+
+If a platform cannot be implemented in the same change, the only honest status is **blocked** — not Done.
+
+## Required sameness (feature + look/feel)
+
+Both OS binaries MUST present the same:
+
+| Layer | Must match |
+|---|---|
+| **Product** | Same screens, tabs, routes, entry points, empty/error/permission states |
+| **Capability** | Same actions (sign-in, import, QC, upload, videos, alerts, account, subscribe-in-browser) with the same gates |
+| **Information architecture** | Same fields, labels (via `@morphos/mobile-i18n`), validation, and disabled/locked behavior |
+| **Look/feel** | Same shared `StyleSheet` tokens, layout, icon set, header/tab chrome, dark theme (`#0f172a` / `#38bdf8` / `#f8fafc`) |
+| **Config** | Same scheme (`morphoscapture`), equivalent photo + location permission *reasons*, same splash/icon mark |
+
+Native **system chrome** may differ (status bar, safe area, hardware/back gesture, OS photo picker sheet, OS date/time picker, adaptive vs iOS icon slot). The **in-app** layout around those widgets MUST still match.
+
+## OS-mandated exceptions (only these)
+
+`Platform.OS` / native config is allowed **only** when the operating system requires a different API or manifest, and the **user-visible capability stays the same**:
+
+- Permission strings / Info.plist vs `AndroidManifest`
+- Adaptive icon vs iOS `icon` (same Morphos **M** mark and background)
+- MSAL / system-browser auth return (`morphoscapture://auth`) wiring
+- Safe area, status bar, and back-navigation system behavior
+- Store/signing (Gradle vs Xcode) — **not** product features
+
+Every exception MUST have an equivalent on the other OS in the **same change**, plus a test that locks both sides (see `src/navigation/appIconConfig.test.ts`).
+
+## Completion gate (this session)
+
+Before claiming Done you MUST:
+
+1. State the **same** screens/flows/copy/styles for iOS **and** Android (or quote the OS-mandated exception + the equivalent)
+2. Run `npm run lint` **and** `npm run test` and report exit **0**
+3. If you added `Platform.OS` / `Platform.select` / `*.ios.*` / `*.android.*`, add tests for **both** branches
+4. If look/feel or a user flow changed: exercise `docs/phone-testing-checklist.md` on **one iPhone and one Android**, or say **blocked**
+
+Unsigned `xcodebuild` on GitHub `macos-latest` is the iOS compile proof. That does **not** authorize an iOS product gap.
+
+## Failure policy
+
+Parity miss → implement the missing OS side in this change → re-run the gate. Do not “follow up,” “native-ize later,” or ship one store.

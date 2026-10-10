@@ -1,0 +1,15 @@
+---
+description: HARD GATE — never claim Done without CI-parity proof
+alwaysApply: true
+---
+
+# Never Break The Build (HARD GATE)
+
+Do not claim Done, mark todos complete, or treat a PR as merge-ready until this session ran the CaptureApp gate and it exited **0**:
+
+- `npm run lint`
+- `npm run test`
+- `npm run android:assemble:release` with `MORPHOS_ANDROID_CI_LIMITS=1` (or GitHub `ubuntu-latest` job evidence)
+- unsigned `xcodebuild` on GitHub `macos-latest` (`CODE_SIGNING_ALLOWED=NO`)
+
+Local xcodebuild is blocked without a Mac; the public repo CI job is the iOS compile proof.
