@@ -2,6 +2,7 @@ node_modules/
 .expo/
 dist/
 vendor/
+certs/
 .env.local
 *.jks
 *.p8
